@@ -128,7 +128,6 @@ class Recorder(QObject):
     def finishRecording(self):
         self.audio.stream.stop_stream()
         data = self.read_audio(drop_last=3)
-
         if self.window.property("scriptFilename"):
             self.deleteFile(self.window.property("scriptFilename"))
 
@@ -152,12 +151,8 @@ class Recorder(QObject):
         self.audio.write_wav(filename, data)
         scriptText = self.window.property("scriptText")
 
-        self.saveFile(
-            dirname=self.window.property("saveDir"),
-            filename=filename,
-            scriptText=scriptText,
-        )
-        self.saveFile(dirname=dirname, filename=filename, scriptText=scriptText)
+        self.saveFile(filename=self.window.property("saveDir"), scriptText=scriptText)
+        self.saveFile(filename=dirname, scriptText=scriptText)
 
         logging.debug("wrote %s to %s", len(data), filename)
 
@@ -180,8 +175,8 @@ class Recorder(QObject):
     def playFile(self, filename):
         winsound.PlaySound(filename, winsound.SND_FILENAME)
 
-    def saveFile(self, dirname, filename, scriptText):
-        with open(os.path.join(dirname, "recorder.tsv"), "a") as xsvfile:
+    def saveFile(self, filename, scriptText):
+        with open(os.path.join(filename, "recorder.tsv"), "a") as xsvfile:
             xsvfile.write(
                 "\t".join(
                     [
@@ -197,20 +192,11 @@ class Recorder(QObject):
 
     @Slot(str)
     def deleteFile(self, filename):
-        prompt_name = (self.prompts_filename.split("/")[1]).split(".")[0]
-        dirname = os.path.normpath(
-            os.path.join(self.window.property("saveDir"), prompt_name)
+        os.remove(filename)
+        xsvfile_in_path = os.path.join(self.window.property("saveDir"), "recorder.tsv")
+        xsvfile_out_path = os.path.join(
+            self.window.property("saveDir"), "recorder_delete_temp.tsv"
         )
-
-        self.deleteTranscript(
-            dirname=self.window.property("saveDir"), filename=filename
-        )
-        self.deleteTranscript(dirname=dirname, filename=filename)
-
-    def deleteTranscript(self, dirname, filename):
-        Utils.delete_file(filename)
-        xsvfile_in_path = os.path.join(dirname, "recorder.tsv")
-        xsvfile_out_path = os.path.join(dirname, "recorder_delete_temp.tsv")
         with open(xsvfile_in_path, "r") as xsvfile_in:
             with open(xsvfile_out_path, "w") as xsvfile_out:
                 for line in xsvfile_in:

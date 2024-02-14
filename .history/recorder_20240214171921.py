@@ -129,9 +129,6 @@ class Recorder(QObject):
         self.audio.stream.stop_stream()
         data = self.read_audio(drop_last=3)
 
-        if self.window.property("scriptFilename"):
-            self.deleteFile(self.window.property("scriptFilename"))
-
         _filename = "recorder_" + datetime.datetime.now().strftime(
             "%Y-%m-%d_%H-%M-%S_%f"
         )
@@ -147,6 +144,9 @@ class Recorder(QObject):
                 _filename + ".wav",
             )
         )
+
+        if self.window.property("scriptFilename"):
+            self.deleteFile(self.window.property("scriptFilename"))
 
         self.window.setProperty("scriptFilename", filename)
         self.audio.write_wav(filename, data)
@@ -208,7 +208,7 @@ class Recorder(QObject):
         self.deleteTranscript(dirname=dirname, filename=filename)
 
     def deleteTranscript(self, dirname, filename):
-        Utils.delete_file(filename)
+        os.remove(filename)
         xsvfile_in_path = os.path.join(dirname, "recorder.tsv")
         xsvfile_out_path = os.path.join(dirname, "recorder_delete_temp.tsv")
         with open(xsvfile_in_path, "r") as xsvfile_in:

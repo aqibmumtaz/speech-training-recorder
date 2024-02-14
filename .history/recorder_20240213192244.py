@@ -6,9 +6,10 @@ import struct
 import numpy as np
 from scipy.ndimage import binary_dilation
 import webrtcvad
+import librosa
 import soundfile
-
 from Utils import *
+
 
 try:
     import winsound
@@ -86,7 +87,6 @@ class Recorder(QObject):
         prompt_len_soft_max=None,
     ):
         super(Recorder, self).__init__()
-        Utils.create_dir(save_dir)
         if not os.path.isdir(save_dir):
             raise Exception("save_dir '%s' is not a directory" % save_dir)
         self.save_dir = save_dir
@@ -128,60 +128,22 @@ class Recorder(QObject):
     def finishRecording(self):
         self.audio.stream.stop_stream()
         data = self.read_audio(drop_last=3)
-
         if self.window.property("scriptFilename"):
             self.deleteFile(self.window.property("scriptFilename"))
-
-        _filename = "recorder_" + datetime.datetime.now().strftime(
-            "%Y-%m-%d_%H-%M-%S_%f"
-        )
-        prompt_name = (self.prompts_filename.split("/")[1]).split(".")[0]
-        dirname = os.path.normpath(
-            os.path.join(self.window.property("saveDir"), prompt_name)
-        )
-        Utils.create_dir(dirname)
-
         filename = os.path.normpath(
             os.path.join(
-                dirname,
-                _filename + ".wav",
+                self.window.property("saveDir"),
+                "recorder_"
+                + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f")
+                + ".wav",
             )
         )
-
         self.window.setProperty("scriptFilename", filename)
         self.audio.write_wav(filename, data)
         scriptText = self.window.property("scriptText")
-
-        self.saveFile(
-            dirname=self.window.property("saveDir"),
-            filename=filename,
-            scriptText=scriptText,
-        )
-        self.saveFile(dirname=dirname, filename=filename, scriptText=scriptText)
-
-        logging.debug("wrote %s to %s", len(data), filename)
-
-        trimmed_filename = os.path.normpath(
-            os.path.join(
-                dirname,
-                _filename + "_trimmed" + ".wav",
-            )
-        )
-
-        # trim silence?
-        try:
-            wav, source_sr = Utils.load_wav_file(_wav_file_=filename)
-            wav = trim_long_silences(wav)
-            soundfile.write(str(filename), wav, source_sr)
-        except Exception as e:
-            print(f"Error : {e}")
-
-    @Slot(str)
-    def playFile(self, filename):
-        winsound.PlaySound(filename, winsound.SND_FILENAME)
-
-    def saveFile(self, dirname, filename, scriptText):
-        with open(os.path.join(dirname, "recorder.tsv"), "a") as xsvfile:
+        with open(
+            os.path.join(self.window.property("saveDir"), "recorder.tsv"), "a"
+        ) as xsvfile:
             xsvfile.write(
                 "\t".join(
                     [
@@ -194,23 +156,46 @@ class Recorder(QObject):
                 )
                 + "\n"
             )
+        logging.debug("wrote %s to %s", len(data), filename)
+
+        trimmed_filename = os.path.normpath(
+            os.path.join(
+                self.window.property("saveDir"),
+                "recorder_"
+                + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f")
+                + "_trimmed"
+                + ".wav",
+            )
+        )
+
+        # trim silence?
+        try:
+            spectogram_librosa()
+            (sig, rate) = librosa.load(
+                str(os.path.join("./", filename)),
+                sr=None,
+                mono=True,
+                dtype=np.float32,
+            )
+            wav, source_sr = librosa.load(
+                str(os.path.join("./dsdfs/", filename)), sr=None
+            )
+            wav = trim_long_silences(wav)
+            soundfile.write(str(trimmed_filename), wav, source_sr)
+        except Exception as e:
+            print(f"Error : {e}")
+
+    @Slot(str)
+    def playFile(self, filename):
+        winsound.PlaySound(filename, winsound.SND_FILENAME)
 
     @Slot(str)
     def deleteFile(self, filename):
-        prompt_name = (self.prompts_filename.split("/")[1]).split(".")[0]
-        dirname = os.path.normpath(
-            os.path.join(self.window.property("saveDir"), prompt_name)
+        os.remove(filename)
+        xsvfile_in_path = os.path.join(self.window.property("saveDir"), "recorder.tsv")
+        xsvfile_out_path = os.path.join(
+            self.window.property("saveDir"), "recorder_delete_temp.tsv"
         )
-
-        self.deleteTranscript(
-            dirname=self.window.property("saveDir"), filename=filename
-        )
-        self.deleteTranscript(dirname=dirname, filename=filename)
-
-    def deleteTranscript(self, dirname, filename):
-        Utils.delete_file(filename)
-        xsvfile_in_path = os.path.join(dirname, "recorder.tsv")
-        xsvfile_out_path = os.path.join(dirname, "recorder_delete_temp.tsv")
         with open(xsvfile_in_path, "r") as xsvfile_in:
             with open(xsvfile_out_path, "w") as xsvfile_out:
                 for line in xsvfile_in:

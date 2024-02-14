@@ -208,7 +208,7 @@ class Recorder(QObject):
         self.deleteTranscript(dirname=dirname, filename=filename)
 
     def deleteTranscript(self, dirname, filename):
-        Utils.delete_file(filename)
+        os.remove(filename)
         xsvfile_in_path = os.path.join(dirname, "recorder.tsv")
         xsvfile_out_path = os.path.join(dirname, "recorder_delete_temp.tsv")
         with open(xsvfile_in_path, "r") as xsvfile_in:

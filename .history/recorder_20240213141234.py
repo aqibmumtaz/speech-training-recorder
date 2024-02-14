@@ -2,13 +2,10 @@
 
 import argparse, datetime, logging, math, os, os.path, random, re, sys
 
-import struct
-import numpy as np
-from scipy.ndimage import binary_dilation
-import webrtcvad
-import soundfile
-
-from Utils import *
+# import struct
+# import numpy as np
+# from scipy.ndimage import binary_dilation
+# import webrtcvad
 
 try:
     import winsound
@@ -21,57 +18,57 @@ from PySide2.QtCore import Qt, QUrl, QObject, Property, Signal, Slot
 
 import audio
 
-# For silence trimming
-vad_moving_average_width = 8
-int16_max = (2**15) - 1
-vad_window_length = 30
-sample_rate = 16000
-vad_max_silence_length = 6
+# # For silence trimming
+# vad_moving_average_width = 8
+# int16_max = (2**15) - 1
+# vad_window_length = 30
+# sample_rate = 16000
+# vad_max_silence_length = 6
 
 
-# Source: CorentinJ - Real Time Voice Cloning - Thanks for this one!
-def trim_long_silences(wav):
+# # Source: CorentinJ - Real Time Voice Cloning - Thanks for this one!
+# def trim_long_silences(wav):
 
-    # Compute the voice detection window size
-    samples_per_window = (vad_window_length * sample_rate) // 1000
+#     # Compute the voice detection window size
+#     samples_per_window = (vad_window_length * sample_rate) // 1000
 
-    # Trim the end of the audio to have a multiple of the window size
-    wav = wav[: len(wav) - (len(wav) % samples_per_window)]
+#     # Trim the end of the audio to have a multiple of the window size
+#     wav = wav[: len(wav) - (len(wav) % samples_per_window)]
 
-    # Convert the float waveform to 16-bit mono PCM
-    pcm_wave = struct.pack(
-        "%dh" % len(wav), *(np.round(wav * int16_max)).astype(np.int16)
-    )
+#     # Convert the float waveform to 16-bit mono PCM
+#     pcm_wave = struct.pack(
+#         "%dh" % len(wav), *(np.round(wav * int16_max)).astype(np.int16)
+#     )
 
-    # Perform voice activation detection
-    voice_flags = []
-    vad = webrtcvad.Vad(mode=3)
-    for window_start in range(0, len(wav), samples_per_window):
-        window_end = window_start + samples_per_window
-        voice_flags.append(
-            vad.is_speech(
-                pcm_wave[window_start * 2 : window_end * 2], sample_rate=sample_rate
-            )
-        )
-    voice_flags = np.array(voice_flags)
+#     # Perform voice activation detection
+#     voice_flags = []
+#     vad = webrtcvad.Vad(mode=3)
+#     for window_start in range(0, len(wav), samples_per_window):
+#         window_end = window_start + samples_per_window
+#         voice_flags.append(
+#             vad.is_speech(
+#                 pcm_wave[window_start * 2 : window_end * 2], sample_rate=sample_rate
+#             )
+#         )
+#     voice_flags = np.array(voice_flags)
 
-    # Smooth the voice detection with a moving average
-    def moving_average(array, width):
-        array_padded = np.concatenate(
-            (np.zeros((width - 1) // 2), array, np.zeros(width // 2))
-        )
-        ret = np.cumsum(array_padded, dtype=float)
-        ret[width:] = ret[width:] - ret[:-width]
-        return ret[width - 1 :] / width
+#     # Smooth the voice detection with a moving average
+#     def moving_average(array, width):
+#         array_padded = np.concatenate(
+#             (np.zeros((width - 1) // 2), array, np.zeros(width // 2))
+#         )
+#         ret = np.cumsum(array_padded, dtype=float)
+#         ret[width:] = ret[width:] - ret[:-width]
+#         return ret[width - 1 :] / width
 
-    audio_mask = moving_average(voice_flags, vad_moving_average_width)
-    audio_mask = np.round(audio_mask).astype(np.bool)
+#     audio_mask = moving_average(voice_flags, vad_moving_average_width)
+#     audio_mask = np.round(audio_mask).astype(np.bool)
 
-    # Dilate the voiced regions
-    audio_mask = binary_dilation(audio_mask, np.ones(vad_max_silence_length + 1))
-    audio_mask = np.repeat(audio_mask, samples_per_window)
+#     # Dilate the voiced regions
+#     audio_mask = binary_dilation(audio_mask, np.ones(vad_max_silence_length + 1))
+#     audio_mask = np.repeat(audio_mask, samples_per_window)
 
-    return wav[audio_mask == True]
+#     return wav[audio_mask == True]
 
 
 class Recorder(QObject):
@@ -86,7 +83,6 @@ class Recorder(QObject):
         prompt_len_soft_max=None,
     ):
         super(Recorder, self).__init__()
-        Utils.create_dir(save_dir)
         if not os.path.isdir(save_dir):
             raise Exception("save_dir '%s' is not a directory" % save_dir)
         self.save_dir = save_dir
@@ -128,60 +124,22 @@ class Recorder(QObject):
     def finishRecording(self):
         self.audio.stream.stop_stream()
         data = self.read_audio(drop_last=3)
-
         if self.window.property("scriptFilename"):
             self.deleteFile(self.window.property("scriptFilename"))
-
-        _filename = "recorder_" + datetime.datetime.now().strftime(
-            "%Y-%m-%d_%H-%M-%S_%f"
-        )
-        prompt_name = (self.prompts_filename.split("/")[1]).split(".")[0]
-        dirname = os.path.normpath(
-            os.path.join(self.window.property("saveDir"), prompt_name)
-        )
-        Utils.create_dir(dirname)
-
         filename = os.path.normpath(
             os.path.join(
-                dirname,
-                _filename + ".wav",
+                self.window.property("saveDir"),
+                "recorder_"
+                + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f")
+                + ".wav",
             )
         )
-
         self.window.setProperty("scriptFilename", filename)
         self.audio.write_wav(filename, data)
         scriptText = self.window.property("scriptText")
-
-        self.saveFile(
-            dirname=self.window.property("saveDir"),
-            filename=filename,
-            scriptText=scriptText,
-        )
-        self.saveFile(dirname=dirname, filename=filename, scriptText=scriptText)
-
-        logging.debug("wrote %s to %s", len(data), filename)
-
-        trimmed_filename = os.path.normpath(
-            os.path.join(
-                dirname,
-                _filename + "_trimmed" + ".wav",
-            )
-        )
-
-        # trim silence?
-        try:
-            wav, source_sr = Utils.load_wav_file(_wav_file_=filename)
-            wav = trim_long_silences(wav)
-            soundfile.write(str(filename), wav, source_sr)
-        except Exception as e:
-            print(f"Error : {e}")
-
-    @Slot(str)
-    def playFile(self, filename):
-        winsound.PlaySound(filename, winsound.SND_FILENAME)
-
-    def saveFile(self, dirname, filename, scriptText):
-        with open(os.path.join(dirname, "recorder.tsv"), "a") as xsvfile:
+        with open(
+            os.path.join(self.window.property("saveDir"), "recorder.tsv"), "a"
+        ) as xsvfile:
             xsvfile.write(
                 "\t".join(
                     [
@@ -194,23 +152,19 @@ class Recorder(QObject):
                 )
                 + "\n"
             )
+        logging.debug("wrote %s to %s", len(data), filename)
+
+    @Slot(str)
+    def playFile(self, filename):
+        winsound.PlaySound(filename, winsound.SND_FILENAME)
 
     @Slot(str)
     def deleteFile(self, filename):
-        prompt_name = (self.prompts_filename.split("/")[1]).split(".")[0]
-        dirname = os.path.normpath(
-            os.path.join(self.window.property("saveDir"), prompt_name)
+        os.remove(filename)
+        xsvfile_in_path = os.path.join(self.window.property("saveDir"), "recorder.tsv")
+        xsvfile_out_path = os.path.join(
+            self.window.property("saveDir"), "recorder_delete_temp.tsv"
         )
-
-        self.deleteTranscript(
-            dirname=self.window.property("saveDir"), filename=filename
-        )
-        self.deleteTranscript(dirname=dirname, filename=filename)
-
-    def deleteTranscript(self, dirname, filename):
-        Utils.delete_file(filename)
-        xsvfile_in_path = os.path.join(dirname, "recorder.tsv")
-        xsvfile_out_path = os.path.join(dirname, "recorder_delete_temp.tsv")
         with open(xsvfile_in_path, "r") as xsvfile_in:
             with open(xsvfile_out_path, "w") as xsvfile_out:
                 for line in xsvfile_in:
@@ -304,7 +258,7 @@ def main():
     parser.add_argument(
         "-d",
         "--save_dir",
-        default="./output",
+        default="../audio_data",
         help="where to save .wav & recorder.tsv files (default: %(default)s)",
     )
     parser.add_argument(
