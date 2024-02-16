@@ -81,6 +81,7 @@ class Recorder(QObject):
         self,
         save_dir,
         prompts_filename,
+        validation=False,
         ordered=False,
         prompts_count=100,
         prompt_len_soft_max=None,
@@ -93,6 +94,9 @@ class Recorder(QObject):
         if not os.path.isfile(prompts_filename):
             raise Exception("prompts_filename '%s' is not a file" % prompts_filename)
         self.prompts_filename = prompts_filename
+        self.validation = (
+            validation if isinstance(validation, bool) else eval(validation)
+        )
         self.prompts_count = prompts_count
         self.prompt_len_soft_max = prompt_len_soft_max
         self.ordered = ordered
@@ -106,13 +110,34 @@ class Recorder(QObject):
         self.window.setProperty(
             "promptsName", os.path.splitext(os.path.basename(self.prompts_filename))[0]
         )
-        for script in self.get_scripts_from_file(
-            self.prompts_count,
-            self.prompts_filename,
-            self.ordered,
-            split_len=self.prompt_len_soft_max,
-        ):
-            self.window.appendScript({"script": script, "filename": ""})
+
+        if not self.validation:
+            for script in self.get_scripts_from_file(
+                self.prompts_count,
+                self.prompts_filename,
+                self.ordered,
+                split_len=self.prompt_len_soft_max,
+            ):
+                self.window.appendScript({"script": script, "filename": ""})
+        else:
+            prompt_name = self.get_prompt_name()
+            filename = os.path.normpath(
+                os.path.join(
+                    self.window.property("saveDir"), prompt_name, "recorder.tsv"
+                )
+            )
+
+            for (
+                filename,
+                prompt_category,
+                prompt,
+            ) in self.get_scripts_from_recording_file(
+                self.prompts_count,
+                filename,
+                self.ordered,
+                split_len=self.prompt_len_soft_max,
+            ):
+                self.window.appendScript({"script": prompt, "filename": filename})
 
     @Slot(bool)
     def toggleRecording(self, recording):
@@ -135,7 +160,7 @@ class Recorder(QObject):
         _filename = "recorder_" + datetime.datetime.now().strftime(
             "%Y-%m-%d_%H-%M-%S_%f"
         )
-        prompt_name = (self.prompts_filename.split("/")[1]).split(".")[0]
+        prompt_name = self.get_prompt_name()
         dirname = os.path.normpath(
             os.path.join(self.window.property("saveDir"), prompt_name)
         )
@@ -194,6 +219,10 @@ class Recorder(QObject):
                 )
                 + "\n"
             )
+
+    def get_prompt_name(self):
+        prompt_name = (self.prompts_filename.split("/")[1]).split(".")[0]
+        return prompt_name
 
     @Slot(str)
     def deleteFile(self, filename):
@@ -262,6 +291,30 @@ class Recorder(QObject):
             scripts = sum(scripts, [])
         return scripts[:n]
 
+    def get_scripts_from_recording_file(
+        self, n, filename, ordered=False, split_len=None
+    ):
+        def split(script):
+            split = script.split("\t")
+            filename = split[0]
+            prompt_category_prefix = split[1]
+            prompt_category = split[2]
+            prompt_prefix = split[3]
+            prompt = split[4]
+
+            return (filename, prompt_category, prompt)
+
+        with open(filename, "r") as file:
+            scripts = [line.strip() for line in file if not line.startswith(";")]
+        if n is None:
+            n = len(scripts)
+        # if not ordered:
+        #     # random.shuffle(scripts)
+        #     scripts = [random.choice(scripts) for _ in range(n)]
+        scripts = scripts[:n]
+        scripts = [split(script) for script in scripts]
+        return scripts[:n]
+
     @classmethod
     def sanitize_script(cls, script):
         return script.strip()
@@ -308,6 +361,12 @@ def main():
         help="where to save .wav & recorder.tsv files (default: %(default)s)",
     )
     parser.add_argument(
+        "-v",
+        "--validation",
+        default=False,
+        help="validation model (default: %(default)s)",
+    )
+    parser.add_argument(
         "-c",
         "--prompts_count",
         type=int,
@@ -334,7 +393,10 @@ def main():
         for k, v in vars(args).items()
         if v is not None and k in "prompts_count prompt_len_soft_max".split()
     }
-    recorder = Recorder(args.save_dir, args.prompts_filename, args.ordered, **kwargs)
+
+    recorder = Recorder(
+        args.save_dir, args.prompts_filename, args.validation, args.ordered, **kwargs
+    )
     engine.rootContext().setContextProperty("recorder", recorder)
     engine.load(qml_file)
     recorder.window = engine.rootObjects()[0]

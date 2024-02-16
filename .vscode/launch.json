@@ -9,7 +9,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "recorder.py",
-            "args": ["-p", "prompts/timit.txt"],
+            "args": ["-p", "prompts/timit.txt", "-v", "True"],
             "console": "integratedTerminal"
         }
     ]
