@@ -11,6 +11,7 @@ Window {
     color: "#aaa"
     title: qsTr("Recorder")
 
+    property bool validation: false
     property bool recording: false
     property string promptsName: ''
     property string scriptText: ''
@@ -34,6 +35,10 @@ Window {
     function gotoNextScript() {
         scriptListView.incrementCurrentIndex();
         scriptListView.positionViewAtIndex(scriptListView.currentIndex, ListView.Center);
+    }
+
+    function setTitle() {
+        title: qsTr("Validator")
     }
 
     ListModel {
@@ -83,6 +88,16 @@ Window {
                     }
                 }
             }
+        }
+
+        Label {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            width: parent.width
+            height: parent.height
+            color: validation ? "#7C0A02" : "#fff"
+            font.pixelSize: 20
+            text: validation ? "Validation View -> " + promptsName + " Prompts" : "Recording View -> " + promptsName + " Prompts"
         }
 
         CheckBox {

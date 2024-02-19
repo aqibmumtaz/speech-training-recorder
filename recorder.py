@@ -101,14 +101,19 @@ class Recorder(QObject):
         self.prompt_len_soft_max = prompt_len_soft_max
         self.ordered = ordered
         self.audio = audio.Audio()
+        # self.setWindowTitle("Title of window")
+        # self.title = "Title of window"
+        # self.setProperty("title", "self.save_dir")
 
     @Slot(QObject)
     def init(self, scriptModel):
         logging.debug("init: %s", scriptModel)
+        self.window.setProperty("validation", self.validation)
         self.window.setProperty("saveDir", self.save_dir)
         self.scriptModel = scriptModel
         self.window.setProperty(
-            "promptsName", os.path.splitext(os.path.basename(self.prompts_filename))[0]
+            "promptsName",
+            (os.path.splitext(os.path.basename(self.prompts_filename))[0]).capitalize(),
         )
 
         if not self.validation:
@@ -212,7 +217,7 @@ class Recorder(QObject):
                     [
                         filename,
                         "0",
-                        self.window.property("promptsName"),
+                        self.window.property("promptsName").lower(),
                         "",
                         self.sanitize_script(scriptText),
                     ]
