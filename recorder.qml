@@ -14,6 +14,7 @@ Window {
     property bool validation: false
     property bool recording: false
     property string promptsName: ''
+    property string promptTitle: ''
     property string scriptText: ''
     property string scriptFilename: ''
     property string saveDir: '.'
@@ -97,7 +98,7 @@ Window {
             height: parent.height
             color: validation ? "#7C0A02" : "#fff"
             font.pixelSize: 20
-            text: validation ? "Validation View -> " + promptsName + " Prompts" : "Recording View -> " + promptsName + " Prompts"
+            text: validation ? "Validation View -> " + promptTitle : "Recording View -> " + promptTitle
         }
 
         CheckBox {

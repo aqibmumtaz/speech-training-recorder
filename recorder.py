@@ -27,6 +27,7 @@ int16_max = (2**15) - 1
 vad_window_length = 30
 sample_rate = 16000
 vad_max_silence_length = 6
+is_shuffle = False
 
 
 # Source: CorentinJ - Real Time Voice Cloning - Thanks for this one!
@@ -114,6 +115,11 @@ class Recorder(QObject):
         self.window.setProperty(
             "promptsName",
             (os.path.splitext(os.path.basename(self.prompts_filename))[0]).capitalize(),
+        )
+
+        self.window.setProperty(
+            "promptTitle",
+            self.window.property("promptsName").capitalize() + " Prompts",
         )
 
         if not self.validation:
@@ -284,17 +290,31 @@ class Recorder(QObject):
 
         with open(filename, "r") as file:
             scripts = [line.strip() for line in file if not line.startswith(";")]
-        if n is None:
-            n = len(scripts)
-        if not ordered:
-            # random.shuffle(scripts)
-            scripts = [random.choice(scripts) for _ in range(n)]
-        scripts = scripts[:n]
+
+        if is_shuffle:
+            if n is None:
+                n = len(scripts)
+            if not ordered:
+                random.shuffle(scripts)
+                scripts = [random.choice(scripts) for _ in range(n)]
+            scripts = scripts[:n]
+        else:
+            scripts.sort(reverse=False)
+
         scripts = [filter(script) for script in scripts]
         if split_len is not None:
             scripts = [self.split_script(script, split_len) for script in scripts]
             scripts = sum(scripts, [])
-        return scripts[:n]
+
+        self.window.setProperty(
+            "promptTitle",
+            self.window.property("promptsName").capitalize()
+            + " Prompts"
+            + " ("
+            + str(len(scripts))
+            + ")",
+        )
+        return scripts
 
     def get_scripts_from_recording_file(
         self, n, filename, ordered=False, split_len=None
@@ -309,16 +329,32 @@ class Recorder(QObject):
 
             return (filename, prompt_category, prompt)
 
+        def sortFunc(e):
+            return e[2]
+
         with open(filename, "r") as file:
             scripts = [line.strip() for line in file if not line.startswith(";")]
-        if n is None:
-            n = len(scripts)
-        # if not ordered:
-        #     # random.shuffle(scripts)
-        #     scripts = [random.choice(scripts) for _ in range(n)]
-        scripts = scripts[:n]
+
+        # if is_shuffle:
+        #     if n is None:
+        #         n = len(scripts)
+        #     if not ordered:
+        #         random.shuffle(scripts)
+        #         scripts = [random.choice(scripts) for _ in range(n)]
+        #     scripts = scripts[:n]
+        # else:
         scripts = [split(script) for script in scripts]
-        return scripts[:n]
+        scripts.sort(reverse=False, key=sortFunc)
+
+        self.window.setProperty(
+            "promptTitle",
+            self.window.property("promptsName").capitalize()
+            + " Prompts"
+            + " ("
+            + str(len(scripts))
+            + ")",
+        )
+        return scripts
 
     @classmethod
     def sanitize_script(cls, script):
