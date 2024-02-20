@@ -9,7 +9,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "recorder.py",
-            "args": ["-p", "prompts/commands.txt", "-v", "True"],
+            "args": ["-p", "prompts/commands.txt", "-r", "True", "-v", "False"],
             "console": "integratedTerminal"
         }
     ]
