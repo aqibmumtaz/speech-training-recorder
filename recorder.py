@@ -22,7 +22,6 @@ from PySide2.QtCore import Qt, QUrl, QObject, Property, Signal, Slot
 import audio
 
 IS_SHUFFLE = False
-N_LIST_ELEMENTS_DUPLICATION = 5
 
 # For silence trimming
 vad_moving_average_width = 8
@@ -84,6 +83,7 @@ class Recorder(QObject):
         self,
         save_dir,
         prompts_filename,
+        no_of_samples_per_prompt=5,
         reload_scripts=False,
         validation=False,
         ordered=False,
@@ -98,6 +98,7 @@ class Recorder(QObject):
         if not os.path.isfile(prompts_filename):
             raise Exception("prompts_filename '%s' is not a file" % prompts_filename)
         self.prompts_filename = prompts_filename
+        self.no_of_samples_per_prompt = no_of_samples_per_prompt
         self.prompt_name = os.path.splitext(os.path.basename(self.prompts_filename))[0]
         self.reload_scripts = (
             reload_scripts if isinstance(reload_scripts, bool) else eval(reload_scripts)
@@ -324,6 +325,15 @@ class Recorder(QObject):
         result_scripts.extend(file_scripts_tuples)
         self.sort_scripts(result_scripts)
 
+        self.window.setProperty(
+            "promptTitle",
+            self.window.property("promptsName").capitalize()
+            + " Prompts"
+            + " / Reloaded ("
+            + str(len(result_scripts))
+            + ")",
+        )
+
         return result_scripts
 
     def get_scripts_from_file(self, n, filename, ordered=False, split_len=None):
@@ -348,7 +358,7 @@ class Recorder(QObject):
                 scripts = [random.choice(scripts) for _ in range(n)]
             scripts = scripts[:n]
         else:
-            n = N_LIST_ELEMENTS_DUPLICATION
+            n = self.no_of_samples_per_prompt
             scripts.sort(reverse=False)
             scripts = [item for item in scripts for _ in range(n)]
 
@@ -456,6 +466,13 @@ def main():
         help="where to save .wav & recorder.tsv files (default: %(default)s)",
     )
     parser.add_argument(
+        "-n",
+        "--no_of_samples_per_prompt",
+        type=int,
+        default=5,
+        help="number of samples per prompts to repeate and display (default: %(default)s)",
+    )
+    parser.add_argument(
         "-r",
         "--reload",
         default=False,
@@ -498,6 +515,7 @@ def main():
     recorder = Recorder(
         args.save_dir,
         args.prompts_filename,
+        args.no_of_samples_per_prompt,
         args.reload,
         args.validation,
         args.ordered,

@@ -50,6 +50,15 @@ optional arguments:
                         (default: False)
 ```
 
+## How to run
+
+  Recording View : python recorder.py -p prompts/commands.txt
+  Recording View n samples per prompt : python recorder.py -p prompts/commands.txt -n 5  
+  Recording View with Relaod : python recorder.py -p prompts/commands.txt -r True -n 5
+  Validation View :  python recorder.py -p prompts/commands.txt -v True
+
+
+
 ## Customization
 
 See `prompts/` directory for acceptable formats for prompt files: the simplest is `rainbow_passage.txt`.
