@@ -52,10 +52,10 @@ optional arguments:
 
 ## How to run
 
-  * Recording View : python recorder.py -p prompts/commands.txt
-  * Recording View n samples per prompt : python recorder.py -p prompts/commands.txt -n 5  
-  * Recording View with Relaod : python recorder.py -p prompts/commands.txt -r True -n 5
-  * Validation View :  python recorder.py -p prompts/commands.txt -v True
+  * Recording View : `python recorder.py -p prompts/commands.txt`
+  * Recording View n samples per prompt : `python recorder.py -p prompts/commands.txt -n 5`  
+  * Recording View with Relaod : `python recorder.py -p prompts/commands.txt -r True -n 5`
+  * Validation View : `python recorder.py -p prompts/commands.txt -v True`
 
 
 
