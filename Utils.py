@@ -7,6 +7,12 @@ import os
 from zipfile import ZipFile
 from collections import Counter
 import shutil
+import nltk
+from nltk.corpus import wordnet
+from nltk.probability import FreqDist
+import random
+from nltk.corpus import wordnet
+import csv
 
 
 class Utils:
@@ -178,8 +184,98 @@ class Utils:
         plt.xlabel("Time [sec]")
         plt.savefig("spectogram1.png")
 
+    def download_dataset():
+
+        # Download the WordNet database if not already downloaded
+        nltk.download("wordnet")
+
+        # Load the dataset of medicine names
+        medicine_names = nltk.corpus.names.words("medicine.txt")
+
+        # Calculate the frequency distribution of the medicine names
+        freq_dist = FreqDist(medicine_names)
+
+        # Get the top 100 medicine names
+        top_100_medicine_names = freq_dist.most_common(100)
+
+        # Print the top 100 medicine names
+        for medicine_name, frequency in top_100_medicine_names:
+            print(medicine_name)
+
+    # def generate_medicine_names():
+
+    #     def generate_medicine_names_list(num_names):
+    #         prefixes = [
+    #             "Pro",
+    #             "Zenith",
+    #             "Medi",
+    #             "Tranqui",
+    #             "Cardio",
+    #             "Dermacare",
+    #             "Osteo",
+    #             "Neuro",
+    #             "Pulmo",
+    #             "Gastro",
+    #             "Aller",
+    #             "Renova",
+    #             "Diabeti",
+    #             "Vision",
+    #             "Musculo",
+    #             "Immuno",
+    #             "Pedia",
+    #             "Asthma",
+    #             "Cardio",
+    #             "Pain",
+    #         ]
+
+    #         # Get synsets from WordNet for potential suffixes
+    #         synsets = list(wordnet.all_synsets(pos=wordnet.NOUN))
+    #         suffixes = [synset.lemmas()[0].name() for synset in synsets]
+
+    #         medicine_names = []
+    #         for _ in range(num_names):
+    #             prefix = random.choice(prefixes)
+    #             suffix = random.choice(suffixes).capitalize()
+    #             name = f"{prefix}{suffix}"
+    #             medicine_names.append(name)
+
+    #         return medicine_names
+
+    # # Generate a list of 10 medicine names
+    # medicine_list = generate_medicine_names_list(10)
+
+    # # Print the generated medicine names
+    # for i, medicine in enumerate(medicine_list, start=1):
+    #     print(f"{i}. {medicine}")
+
+    def generate_medicine_names(
+        filename="./datasets/Pakistan_Pharmaceutical_Products_Pricing_and_Availability_Data.csv",
+    ):
+
+        # Open the CSV file and read the data
+        with open(filename, "r") as file:
+            reader = csv.DictReader(file)
+            data = list(reader)
+
+            medicine_names = []
+            for medicine in data:
+                medicine_name = medicine["Name"]
+                medicine_name = medicine_name.strip()
+                if medicine_name != "":
+                    medicine_name = medicine_name[0].upper() + medicine_name[1:]
+                    medicine_names.append(medicine_name)
+
+            medicine_names = Utils.unique(medicine_names)
+
+            file = open("prompts/medicine_names.txt", "w")
+            for medicine_names in medicine_names:
+                file.write(medicine_names + "\n")
+            file.close()
+
 
 Utils.load_wav_file()
+# Utils.download_dataset()
+Utils.generate_medicine_names()
 
 # spectogram_librosa(_wav_file_)
 # graph_wavfileread(_wav_file_)

@@ -50,15 +50,6 @@ optional arguments:
                         (default: False)
 ```
 
-## How to run
-
-  * Recording View : `python recorder.py -p prompts/commands.txt`
-  * Recording View n samples per prompt : `python recorder.py -p prompts/commands.txt -n 5`  
-  * Recording View with Relaod : `python recorder.py -p prompts/commands.txt -r True -n 5`
-  * Validation View : `python recorder.py -p prompts/commands.txt -v True`
-
-
-
 ## Customization
 
 See `prompts/` directory for acceptable formats for prompt files: the simplest is `rainbow_passage.txt`.
@@ -66,3 +57,19 @@ See `prompts/` directory for acceptable formats for prompt files: the simplest i
 ## Related Repositories
 
 * [daanzu/kaldi_ag_training](https://github.com/daanzu/kaldi_ag_training): Docker image and scripts for training finetuned or completely personal Kaldi speech models. Particularly for use with [kaldi-active-grammar](https://github.com/daanzu/kaldi-active-grammar).
+
+
+## How to run
+
+  * Recording View : `python recorder.py -p prompts/commands.txt`
+  * Recording View n samples per prompt : `python recorder.py -p prompts/commands.txt -n 5`  
+  * Recording View with Relaod : `python recorder.py -p prompts/commands.txt -r True -n 5`
+  * Validation View : `python recorder.py -p prompts/commands.txt -v True`
+
+### Datasets
+  * A-Z Medicine Datasets : 
+                            https://www.kaggle.com/datasets/talhasattar727/pakistan-pharmaceutical-dataset
+                            https://www.kaggle.com/datasets/shudhanshusingh/az-medicine-dataset-of-india/code
+                            https://www.kaggle.com/code/muhammedtausif/medicine-analytics-eda
+                            https://www.kaggle.com/datasets/ahmedshahriarsakib/assorted-medicine-dataset-of-bangladesh
+
