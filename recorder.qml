@@ -33,6 +33,11 @@ Window {
         scriptModel.append(data)
     }
 
+    function gotoPreviousScript() {
+        scriptListView.decrementCurrentIndex();
+        scriptListView.positionViewAtIndex(scriptListView.currentIndex, ListView.Center);
+    }
+
     function gotoNextScript() {
         scriptListView.incrementCurrentIndex();
         scriptListView.positionViewAtIndex(scriptListView.currentIndex, ListView.Center);
@@ -127,6 +132,7 @@ Window {
             font.pointSize: 16
             highlighted: recording
             text: recording ? "Stop" : "Start"
+            focusPolicy: Qt.NoFocus
             onClicked: {
                 recording = !recording;
                 if (recording) {
@@ -143,6 +149,7 @@ Window {
                 Layout.fillWidth: true
                 font.pointSize: 14
                 text: "Play"
+                focusPolicy: Qt.NoFocus
                 enabled: scriptFilename
                 highlighted: playFile.playbackState == playFile.PlayingState
                 // onClicked: recorder.playFile(scriptFilename)
@@ -160,6 +167,7 @@ Window {
                 Layout.fillWidth: true
                 font.pointSize: 14
                 text: "Delete"
+                focusPolicy: Qt.NoFocus
                 enabled: scriptFilename
                 onClicked: recorder.deleteFile(scriptFilename)
             }
@@ -168,6 +176,7 @@ Window {
                 Layout.fillWidth: true
                 font.pointSize: 14
                 text: recording ? "Cancel" : "Next"
+                focusPolicy: Qt.NoFocus
                 onClicked: {
                     if (recording) {
                         recording = !recording;
