@@ -106,10 +106,12 @@ class Recorder(QObject):
         self.validation = (
             validation if isinstance(validation, bool) else eval(validation)
         )
+        self.no_of_recorded_prompts = 0
         self.prompts_count = prompts_count
         self.prompt_len_soft_max = prompt_len_soft_max
         self.ordered = ordered
         self.audio = audio.Audio()
+        self.scripts = None
         # self.setWindowTitle("Title of window")
         # self.title = "Title of window"
         # self.setProperty("title", "self.save_dir")
@@ -190,6 +192,9 @@ class Recorder(QObject):
 
     @Slot()
     def finishRecording(self):
+        self.no_of_recorded_prompts = self.no_of_recorded_prompts + 1
+        self.setTitle(self.scripts)
+
         self.audio.stream.stop_stream()
         data = self.read_audio(drop_last=3)
 
@@ -265,6 +270,9 @@ class Recorder(QObject):
 
     @Slot(str)
     def deleteFile(self, filename):
+        self.no_of_recorded_prompts = self.no_of_recorded_prompts - 1
+        self.setTitle(self.scripts)
+
         prompt_name = (self.prompts_filename.split("/")[1]).split(".")[0]
         dirname = os.path.normpath(
             os.path.join(self.window.property("saveDir"), prompt_name)
@@ -308,31 +316,25 @@ class Recorder(QObject):
     def reload_scripts_from_files(
         self, n, filename, recording_filename, ordered=False, split_len=None
     ):
+        # TODO: Delete output folder Run Reload and there  is error in recordings
+        # also show 1/10 recording indicators on UI
         file_scripts = self.get_scripts_from_file(n, filename, ordered, split_len)
 
         recording_file_scripts = self.get_scripts_from_recording_file(
             n, recording_filename, ordered, split_len
         )
+        self.no_of_recorded_prompts = len(recording_file_scripts)
 
         result_scripts = recording_file_scripts
         for script in recording_file_scripts:
             if script[2] in file_scripts:
                 file_scripts.remove(script[2])
 
-        file_scripts_tuples = [
-            (None, self.prompt_name, label) for label in file_scripts
-        ]
+        file_scripts_tuples = [("", self.prompt_name, label) for label in file_scripts]
         result_scripts.extend(file_scripts_tuples)
         self.sort_scripts(result_scripts)
 
-        self.window.setProperty(
-            "promptTitle",
-            self.window.property("promptsName").capitalize()
-            + " Prompts"
-            + " / Reloaded ("
-            + str(len(result_scripts))
-            + ")",
-        )
+        self.setTitle(result_scripts)
 
         return result_scripts
 
@@ -367,14 +369,8 @@ class Recorder(QObject):
             scripts = [self.split_script(script, split_len) for script in scripts]
             scripts = sum(scripts, [])
 
-        self.window.setProperty(
-            "promptTitle",
-            self.window.property("promptsName").capitalize()
-            + " Prompts"
-            + " ("
-            + str(len(scripts))
-            + ")",
-        )
+        self.setTitle(scripts)
+
         return scripts
 
     def sort_scripts(self, scripts):
@@ -396,29 +392,55 @@ class Recorder(QObject):
 
             return (filename, prompt_category, prompt)
 
-        with open(filename, "r") as file:
-            scripts = [line.strip() for line in file if not line.startswith(";")]
+        scripts = []
+        if Utils.is_path_exists(filename):
+            with open(filename, "r") as file:
+                scripts = [line.strip() for line in file if not line.startswith(";")]
 
-        # if IS_SHUFFLE:
-        #     if n is None:
-        #         n = len(scripts)
-        #     if not ordered:
-        #         random.shuffle(scripts)
-        #         scripts = [random.choice(scripts) for _ in range(n)]
-        #     scripts = scripts[:n]
-        # else:
-        scripts = [split(script) for script in scripts]
-        self.sort_scripts(scripts)
+                # if IS_SHUFFLE:
+                #     if n is None:
+                #         n = len(scripts)
+                #     if not ordered:
+                #         random.shuffle(scripts)
+                #         scripts = [random.choice(scripts) for _ in range(n)]
+                #     scripts = scripts[:n]
+                # else:
+                scripts = [split(script) for script in scripts]
+                self.sort_scripts(scripts)
 
-        self.window.setProperty(
-            "promptTitle",
-            self.window.property("promptsName").capitalize()
-            + " Prompts"
-            + " ("
-            + str(len(scripts))
-            + ")",
-        )
+        self.no_of_recorded_prompts = len(scripts)
+
+        self.setTitle(scripts)
+
         return scripts
+
+    def setTitle(self, scripts):
+
+        if not self.scripts:
+            self.scripts = scripts
+
+        if self.reload_scripts:
+            self.window.setProperty(
+                "promptTitle",
+                self.window.property("promptsName").capitalize()
+                + " Prompts / Reloads"
+                + " ("
+                + str(self.no_of_recorded_prompts)
+                + " / "
+                + str(len(self.scripts))
+                + ")",
+            )
+        else:
+            self.window.setProperty(
+                "promptTitle",
+                self.window.property("promptsName").capitalize()
+                + " Prompts"
+                + " ("
+                + str(self.no_of_recorded_prompts)
+                + " / "
+                + str(len(self.scripts))
+                + ")",
+            )
 
     @classmethod
     def sanitize_script(cls, script):

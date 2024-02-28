@@ -275,7 +275,7 @@ class Utils:
 
 Utils.load_wav_file()
 # Utils.download_dataset()
-Utils.generate_medicine_names()
+# Utils.generate_medicine_names()
 
 # spectogram_librosa(_wav_file_)
 # graph_wavfileread(_wav_file_)
