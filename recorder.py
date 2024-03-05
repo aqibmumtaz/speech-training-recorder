@@ -416,8 +416,8 @@ class Recorder(QObject):
 
     def setTitle(self, scripts):
 
-        if not self.scripts:
-            self.scripts = scripts
+        # if not self.scripts:
+        self.scripts = scripts
 
         if self.reload_scripts:
             self.window.setProperty(
