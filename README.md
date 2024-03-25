@@ -74,3 +74,8 @@ See `prompts/` directory for acceptable formats for prompt files: the simplest i
                             https://www.kaggle.com/code/muhammedtausif/medicine-analytics-eda
                             https://www.kaggle.com/datasets/ahmedshahriarsakib/assorted-medicine-dataset-of-bangladesh
 
+  * Speech Dataset for healthcare:
+                            https://www.shaip.com/healthcare-ai/physician-dictation-audio-data-medical-data-catalog/
+                            https://www.kaggle.com/datasets/paultimothymooney/medical-speech-transcription-and-intent
+                            https://zenodo.org/records/4279041
+

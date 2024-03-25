@@ -280,3 +280,13 @@ Utils.load_wav_file()
 # spectogram_librosa(_wav_file_)
 # graph_wavfileread(_wav_file_)
 # graph_spectrogram_wave(_wav_file_)
+
+
+# Medicine
+
+# commonly used medicines
+
+
+# Diagontics
+
+# tests
