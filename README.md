@@ -69,13 +69,74 @@ See `prompts/` directory for acceptable formats for prompt files: the simplest i
 
 ### Datasets
   * A-Z Medicine Datasets : 
+                            https://www.quora.com/Where-can-I-get-a-dataset-of-all-the-medicine-name-and-its-use
                             https://www.kaggle.com/datasets/talhasattar727/pakistan-pharmaceutical-dataset
                             https://www.kaggle.com/datasets/shudhanshusingh/az-medicine-dataset-of-india/code
                             https://www.kaggle.com/code/muhammedtausif/medicine-analytics-eda
                             https://www.kaggle.com/datasets/ahmedshahriarsakib/assorted-medicine-dataset-of-bangladesh
 
+
   * Speech Dataset for healthcare:
                             https://www.shaip.com/healthcare-ai/physician-dictation-audio-data-medical-data-catalog/
-                            https://www.kaggle.com/datasets/paultimothymooney/medical-speech-transcription-and-intent
+                            Medical Speech, Transcription, and Intent : https://www.kaggle.com/datasets/paultimothymooney/medical-speech-transcription-and-intent
                             https://zenodo.org/records/4279041
+
+
+  * Speech Dataset general:
+                            https://paperswithcode.com/datasets?task=speech-recognition
+
+
+  * Audio Datasets :
+                            https://paperswithcode.com/datasets?task=audio-classification
+
+
+  * Local Accent Datasets : 
+                            indian - https://huggingface.co/datasets/DTU54DL/common-accent
+                            indian - https://www.kaggle.com/datasets/polly42rose/indian-accent-dataset
+                            indian - https://www.datatang.ai/datasets/940
+                            indian - https://github.com/AI4Bharat/NPTEL2020-Indian-English-Speech-Dataset?tab=readme-ov-file
+                            High-quality Audio / Speech / Voice Datasets to Train Your Conversational AI Model : https://www.shaip.com/offerings/speech-data-catalog/
+                            All Accents - https://www.kaggle.com/datasets/rtatman/speech-accent-archive
+                            Urdu (Pakistan) Call Center Speech Dataset for Healthcare - https://www.futurebeeai.com/dataset/speech-dataset/healthcare-call-center-conversation-urdu-pakistan
+
+
+  * Tools 
+                            Text to Speech :
+                            Voice cloning / pakistani-accent : https://elevenlabs.io/languages/pakistani-accent
+
+
+
+  * Healthcare-AI Solutions:
+                            https://www.shaip.com/healthcare-ai/solutions/
+
+
+  * Research work:
+                            Open source LLMs :
+                                        https://www.marktechpost.com/2024/04/02/top-open-source-large-language-models-llms-available-for-commercial-use/
+                            Embedding Models : 
+                                        https://analyticsindiamag.com/google-unveils-gecko-a-versatile-text-embedding-model-distilled-from-large-language-models/    
+                                        https://towardsdatascience.com/openai-vs-open-source-multilingual-embedding-models-e5ccb7c90f05   
+                            Topic Modeling:
+                                        https://towardsdatascience.com/topic-modelling-with-berttopic-in-python-8a80d529de34                  
+
+
+  #TODO: Research work:
+  
+  Analysis of Speech:
+    1) Run Audio on the Medicine names 200.
+    2) check Probability values output from the speech model against medicine names.
+    3) Schedule Demo with Shaip Solutions for Text solution.
+    4) Generate Medicine names audio using test to speech tool such as Voice cloning.
+    5) Get recordings for Medicine names with doctor prescription sentences.
+
+  Development:
+    1) Training wishepr on medicines data.
+    2) Using embedding models for word embeddings and formation of word clustring to find the similar vocal words.
+                            
+
+
+
+
+
+
 
