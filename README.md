@@ -111,6 +111,12 @@ See `prompts/` directory for acceptable formats for prompt files: the simplest i
 
 
   * Research work:
+                            Whisper Confidence score:
+                                        https://github.com/openai/whisper/discussions/284
+                                        https://github.com/Anoncheg1/stable-ts-con
+                                        https://github.com/openai/whisper/pull/1119
+                                        https://github.com/SinanAkkoyun/openai-whisper/tree/token-confidence
+                                        https://medium.com/@npolovinkin/how-to-chunk-text-into-paragraphs-using-python-8ae66be38ea6
                             Open source LLMs :
                                         https://www.marktechpost.com/2024/04/02/top-open-source-large-language-models-llms-available-for-commercial-use/
                             Embedding Models : 
@@ -123,10 +129,10 @@ See `prompts/` directory for acceptable formats for prompt files: the simplest i
   #TODO: Research work:
   
   Analysis of Speech:
-    1) Run Audio on the Medicine names 200.
+    1) Run Audio on the Medicine names 200 -> Done
     2) check Probability values output from the speech model against medicine names.
-    3) Schedule Demo with Shaip Solutions for Text solution.
-    4) Generate Medicine names audio using test to speech tool such as Voice cloning.
+    3) Schedule Demo with Shaip Solutions for Text solution -> Email Sent
+    4) Generate Medicine names audio using text to speech tool such as Voice cloning.
     5) Get recordings for Medicine names with doctor prescription sentences.
 
   Development:
