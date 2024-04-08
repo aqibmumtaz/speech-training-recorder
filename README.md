@@ -114,7 +114,7 @@ See `prompts/` directory for acceptable formats for prompt files: the simplest i
                             Whisper Confidence score:
                                         https://github.com/openai/whisper/discussions/284
                                         https://github.com/Anoncheg1/stable-ts-con
-                                        https://github.com/openai/whisper/pull/1119
+                                      **  https://github.com/openai/whisper/pull/1119
                                         https://github.com/SinanAkkoyun/openai-whisper/tree/token-confidence
                                         https://medium.com/@npolovinkin/how-to-chunk-text-into-paragraphs-using-python-8ae66be38ea6
                             Open source LLMs :
