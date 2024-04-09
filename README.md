@@ -123,7 +123,8 @@ See `prompts/` directory for acceptable formats for prompt files: the simplest i
                                         https://www.marktechpost.com/2024/04/02/top-open-source-large-language-models-llms-available-for-commercial-use/
                             Embedding Models : 
                                         https://analyticsindiamag.com/google-unveils-gecko-a-versatile-text-embedding-model-distilled-from-large-language-models/    
-                                        https://towardsdatascience.com/openai-vs-open-source-multilingual-embedding-models-e5ccb7c90f05   
+                                        https://towardsdatascience.com/openai-vs-open-source-multilingual-embedding-models-e5ccb7c90f05
+                                        https://stackoverflow.com/questions/67147261/how-to-find-top-n-similar-words-in-a-dictionary-of-words-things   
                             Topic Modeling:
                                         https://towardsdatascience.com/topic-modelling-with-berttopic-in-python-8a80d529de34                  
 
@@ -133,9 +134,10 @@ See `prompts/` directory for acceptable formats for prompt files: the simplest i
   Analysis of Speech:
     1) Run Audio on the Medicine names 200 -> Done
     2) check Probability values output from the speech model against medicine names.
-    3) Schedule Demo with Shaip Solutions for Text solution -> Email Sent
-    4) Generate Medicine names audio using text to speech tool such as Voice cloning.
+    3) Schedule Demo with Shaip Solutions for Text solution -> Done Email sent
+    4) Generate Medicine names audio using text to speech tool such as Voice cloning -> Done
     5) Get recordings for Medicine names with doctor prescription sentences.
+    6) Generate medicine names output using word embedding similarity i.e., cos_sim. 
 
   Development:
     1) Training wishepr on medicines data.
