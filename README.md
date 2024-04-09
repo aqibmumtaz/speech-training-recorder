@@ -103,6 +103,8 @@ See `prompts/` directory for acceptable formats for prompt files: the simplest i
   * Tools 
                             Text to Speech :
                             Voice cloning / pakistani-accent : https://elevenlabs.io/languages/pakistani-accent
+                            https://revoicer.com/
+                            https://freetools.textmagic.com/text-to-speech
 
 
 
