@@ -106,10 +106,11 @@ class Recorder(QObject):
         self.validation = (
             validation if isinstance(validation, bool) else eval(validation)
         )
+
         self.no_of_recorded_prompts = 0
         self.prompts_count = prompts_count
         self.prompt_len_soft_max = prompt_len_soft_max
-        self.ordered = ordered
+        self.ordered = ordered if isinstance(ordered, bool) else eval(ordered)
         self.audio = audio.Audio()
         self.scripts = None
         # self.setWindowTitle("Title of window")
@@ -332,7 +333,7 @@ class Recorder(QObject):
 
         file_scripts_tuples = [("", self.prompt_name, label) for label in file_scripts]
         result_scripts.extend(file_scripts_tuples)
-        self.sort_scripts(result_scripts)
+        self.sort_scripts(result_scripts, ordered)
 
         self.setTitle(result_scripts)
 
@@ -361,7 +362,8 @@ class Recorder(QObject):
             scripts = scripts[:n]
         else:
             n = self.no_of_samples_per_prompt
-            scripts.sort(reverse=False)
+            if ordered:
+                scripts.sort(reverse=False)
             scripts = [item for item in scripts for _ in range(n)]
 
         scripts = [filter(script) for script in scripts]
@@ -373,11 +375,12 @@ class Recorder(QObject):
 
         return scripts
 
-    def sort_scripts(self, scripts):
+    def sort_scripts(self, scripts, ordered):
         def sortFunc(e):
             return e[2]
 
-        scripts.sort(reverse=False, key=sortFunc)
+        if ordered:
+            scripts.sort(reverse=False, key=sortFunc)
 
     def get_scripts_from_recording_file(
         self, n, filename, ordered=False, split_len=None
@@ -406,7 +409,7 @@ class Recorder(QObject):
                 #     scripts = scripts[:n]
                 # else:
                 scripts = [split(script) for script in scripts]
-                self.sort_scripts(scripts)
+                self.sort_scripts(scripts, ordered)
 
         self.no_of_recorded_prompts = len(scripts)
 
@@ -517,8 +520,7 @@ def main():
     parser.add_argument(
         "-o",
         "--ordered",
-        action="store_true",
-        default=False,
+        default=True,
         help="present prompts in order, as opposed to random (default: %(default)s)",
     )
     args = parser.parse_args()
